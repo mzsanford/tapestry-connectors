@@ -1,0 +1,9 @@
+{
+	"id": "com.mlb.scores",
+	"display_name": "MLB Scores",
+  "service_name": "MLB",
+  "default_color": "blue",
+  "item_style": "article",
+  "site": "https://www.mlb.com",
+  "icon": "https://www.mlbstatic.com/team-logos/apple-touch-icons-180x180/mlb.png"
+}

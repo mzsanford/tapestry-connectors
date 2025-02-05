@@ -1,0 +1,9 @@
+{
+	"id": "com.letterboxd.activity",
+	"display_name": "Letterboxd Activity",
+  "service_name": "Letterboxd",
+  "default_color": "blue",
+  "item_style": "post",
+  "site": "https://letterboxd.com",
+  "icon": "https://s.ltrbxd.com/static/img/icons/touch-icon-192x192.aac7a971.png"
+}

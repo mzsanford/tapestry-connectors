@@ -1,0 +1,9 @@
+{
+	"inputs": [
+		{
+			"name": "username",
+			"type": "text",
+			"prompt": "User Name to fetch activity of"
+		}
+	]
+}
