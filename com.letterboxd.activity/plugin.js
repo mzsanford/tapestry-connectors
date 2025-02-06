@@ -5,8 +5,10 @@ const EntryType = {
   unknown: 'Unknown'
 }
 
+let AvatarCache = {};
+
 function parseFeed(text) {
-  const jsonRSS = xmlParse(text);
+  let jsonRSS = xmlParse(text);
   return jsonRSS.rss.channel.item.map((rssItem) => {
     let entryType = parseType(rssItem);
     if (entryType === EntryType.film) {
@@ -61,19 +63,69 @@ function parseAuthor(rssItem) {
   if (parts && parts.length >= 2) {
     identity.username = `@${parts[2]}`;
     identity.uri = parts[1];
+    identity.avatar = getAvatar(username);
   }
 
   return identity;
 }
 
+function getAvatar(username) {
+  if (AvatarCache[username]) {
+    return AvatarCache[username];
+  } else if (AvatarCache.hasOwnProperty(username)) {
+    return undefined;
+  } else {
+    AvatarCache[username] = undefined;
+    findAvatar(username)
+      .then((avatar) => {
+        AvatarCache[username] = avatar;
+      });
+    return undefined;
+  }
+}
+
+function findAvatar(username) {
+  return sendRequest(`https://letterboxd.com/${username}`)
+    .then((text) => {
+      const avatar = /src="(http[^"]+\/avatar\/[^"]+)"/.exec(text);
+      if (avatar && avatar.length > 1) {
+        AvatarCache[username] = avatar[1];
+        return avatar[1];
+      } else {
+        return undefined;
+      }
+    });
+}
+
+function verify() {
+  findAvatar(username)
+    .then((avatar) => {
+      if (avatar) {
+        const verification = {
+          displayName: `Letterboxd: @${username}`,
+          baseUrl: `https://letterboxd.com/${username}`,
+          icon: avatar
+        }
+        processVerification(verification);
+      } else {
+        processVerification(`Letterboxd: @${username}`);
+      }
+    })
+    .catch((error) => {
+      processError(error);
+    });
+}
+
 function load() {
-  let base = 'https://letterboxd.com';
-	const endpoint = `${base}/${username}/rss/`;
-	sendRequest(endpoint)
-	.then((text) => {
-		processResults(parseFeed(text));
-	})
-	.catch((requestError) => {
-		processError(requestError);
-	});
+  const endpoint = `https://letterboxd.com/${username}/rss/`;
+  findAvatar(username)
+    .then(() => {
+      sendRequest(endpoint)
+        .then((text) => {
+          processResults(parseFeed(text));
+        })
+        .catch((requestError) => {
+          processError(requestError);
+        });
+    });
 }
